@@ -1,0 +1,138 @@
+
+
+------------Assignment 4---------
+
+Mongod
+Mongo
+
+1)"movies" collection and inserting 5 documents.
+
+> db.movies.insertMany([{"name":"movie1", "genre":"action", "rating":7, "language":"English"},
+			{"name":"movie2", "genre":"sci-fi", "rating":6, "language":"English"},
+			{"name":"movie3", "genre":"Thriller", "rating":8, "language":"Telugu"},
+			{"name":"movie4", "genre":"Horror", "rating":6, "language":"Hindi"},
+			{"name":"movie5", "genre":"Adventure", "rating":9, "language":"English"}])
+{
+	"acknowledged" : true,
+	"insertedIds" : [
+		ObjectId("60997dde3c4995dd66f96d60"),
+		ObjectId("60997dde3c4995dd66f96d61"),
+		ObjectId("60997dde3c4995dd66f96d62"),
+		ObjectId("60997dde3c4995dd66f96d63"),
+		ObjectId("60997dde3c4995dd66f96d64")
+	]
+}
+
+
+2)query to return all the movies
+
+> db.movies.find()
+{ "_id" : ObjectId("60997dde3c4995dd66f96d60"), "name" : "movie1", "genre" : "action", "rating" : 7, "language" : "English" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d61"), "name" : "movie2", "genre" : "sci-fi", "rating" : 6, "language" : "English" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d62"), "name" : "movie3", "genre" : "Thriller", "rating" : 8, "language" : "Telugu" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d63"), "name" : "movie4", "genre" : "Horror", "rating" : 6, "language" : "Hindi" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d64"), "name" : "movie5", "genre" : "Adventure", "rating" : 9, "language" : "English" }
+
+
+3)query to find anyone movie name using findOne method without using limit()
+
+> db.movies.findOne({"name":"movie3"})
+{
+	"_id" : ObjectId("60997dde3c4995dd66f96d62"),
+	"name" : "movie3",
+	"genre" : "Thriller",
+	"rating" : 8,
+	"language" : "Telugu"
+}
+
+
+4)query that returns the three highest rated movies
+
+> db.movies.find().sort({"rating":-1}).limit(3)
+{ "_id" : ObjectId("60997dde3c4995dd66f96d64"), "name" : "movie5", "genre" : "Adventure", "rating" : 9, "language" : "English" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d62"), "name" : "movie3", "genre" : "Thriller", "rating" : 8, "language" : "Telugu" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d60"), "name" : "movie1", "genre" : "action", "rating" : 7, "language" : "English" }
+
+
+5) (a)adding achievements key to two documents using update() method
+	> db.movies.update({"name":"movie2"},{$set : {"achievements":"Super Hit"}})
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	> db.movies.findOne({"name":"movie2"})
+	{
+		"_id" : ObjectId("60997dde3c4995dd66f96d61"),
+		"name" : "movie2",
+		"genre" : "sci-fi",
+		"rating" : 6,
+		"language" : "English",
+		"achievements" : "Super Hit"
+	}
+
+	> db.movies.update({"name":"movie3"},{$set : {"achievements":"Super Duper Hit"}})
+	WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+	> db.movies.findOne({"name":"movie3"})
+	{
+		"_id" : ObjectId("60997dde3c4995dd66f96d62"),
+		"name" : "movie3",
+		"genre" : "Thriller",
+		"rating" : 8,
+		"language" : "Telugu",
+		"achievements" : "Super Duper Hit"
+	}
+
+5) (b)adding achievements key to fifth document using save() method
+    -> First copying the 5th document properties along with '_id' i.e, Object id
+    -> The save() method performs an update with 'upsert:true' since the document contains an _id field:
+    
+    > db.movies.save({_id : ObjectId("60997dde3c4995dd66f96d64"), "name" : "movie5", "genre" : "Adventure", "rating" : 9, "language" : "English","achievements": "Super Duper Hit"})
+    WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+    > db.movies.findOne({"name":"movie5"})
+    {
+	"_id" : ObjectId("60997dde3c4995dd66f96d64"),
+	"name" : "movie5",
+	"genre" : "Adventure",
+	"rating" : 9,
+	"language" : "English",
+	"achievements" : "Super Duper Hit"
+    }
+
+
+6) query that returns all the movies that have both the ‘Super Hit’ and the ‘Super Duper Hit’ achievements
+
+> db.movies.find({"achievements":{$in : ["Super Hit", "Super Duper Hit"]}})
+{ "_id" : ObjectId("60997dde3c4995dd66f96d61"), "name" : "movie2", "genre" : "sci-fi", "rating" : 6, "language" : "English", "achievements" : "Super Hit" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d62"), "name" : "movie3", "genre" : "Thriller", "rating" : 8, "language" : "Telugu", "achievements" : "Super Duper Hit" }
+{ "_id" : ObjectId("60997dde3c4995dd66f96d64"), "name" : "movie5", "genre" : "Adventure", "rating" : 9, "language" : "English", "achievements" : "Super Duper Hit" }
+
+
+7)query that returns only those movies that have achievements
+ 
+> db.movies.find({"achievements":{$exists : true}}).pretty()
+{
+	"_id" : ObjectId("60997dde3c4995dd66f96d61"),
+	"name" : "movie2",
+	"genre" : "sci-fi",
+	"rating" : 6,
+	"language" : "English",
+	"achievements" : "Super Hit"
+}
+{
+	"_id" : ObjectId("60997dde3c4995dd66f96d62"),
+	"name" : "movie3",
+	"genre" : "Thriller",
+	"rating" : 8,
+	"language" : "Telugu",
+	"achievements" : "Super Duper Hit"
+}
+{
+	"_id" : ObjectId("60997dde3c4995dd66f96d64"),
+	"name" : "movie5",
+	"genre" : "Adventure",
+	"rating" : 9,
+	"language" : "English",
+	"achievements" : "Super Duper Hit"
+}
+
+
+
+
+
